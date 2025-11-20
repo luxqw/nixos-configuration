@@ -19,11 +19,25 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs = {
+        # IMPORTANT: we're using "libgbm" and is only available in unstable so ensure
+        # to have it up-to-date or simply don't specify the nixpkgs input
+        nixpkgs.follows = "nixpkgs";
+        home-manager.follows = "home-manager";
+      };
+    };
+
+
   };
 
-  outputs = inputs@{ self, nixpkgs, home-manager, quickshell, noctalia,  ... }: {
+  outputs = inputs@{ self, nixpkgs, home-manager, quickshell, noctalia, zen-browser, ... }: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
+     
+      specialArgs = { inherit inputs; };
 
       modules = [
         ./configuration.nix
@@ -41,6 +55,9 @@
             home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
+
+            extraSpecialArgs = { inherit inputs; };
+          
             users.lux = import ./home.nix;
             backupFileExtension = "backup";
           };

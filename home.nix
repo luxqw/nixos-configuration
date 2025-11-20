@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   home.username = "lux";
@@ -19,8 +19,23 @@
   #  };
   #};
   
-  programs.mpv.enable = true;
 
+
+  imports = [
+    # Import the Zen Browser module
+    # You can choose .default (usually beta), .beta, or .twilight
+    inputs.zen-browser.homeModules.default
+  ];
+
+  programs.zen-browser = {
+    enable = true;
+    # Optional: You can add policies here just like firefox
+    # policies = {
+    #   DisableTelemetry = true;
+    # };
+  };
+
+  programs.mpv.enable = true;
 
   programs.zsh = {
   enable = true;

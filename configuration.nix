@@ -101,6 +101,7 @@ specialisation = {
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    wireplumber.enable = true;
     # If you want to use JACK applications, uncomment this
     #jack.enable = true;
 
@@ -146,17 +147,20 @@ specialisation = {
       yaziPlugins.wl-clipboard
       yaziPlugins.yatline-catppuccin
       wget
-      helix
       anki
       krita
       brightnessctl
       vim
+      xdg-desktop-portal-gtk 
+      xdg-desktop-portal-gnome
       ntfs3g
       fastfetch
-      vesktop      
+      vesktop
+      kdePackages.dolphin
       obsidian
       protonup-qt
-      flatpak  
+      flatpak
+      ffmpeg  
       telegram-desktop
       librewolf
       qbittorrent
@@ -165,6 +169,7 @@ specialisation = {
       netbeans
       vscode
       ventoy-full-gtk
+      jdk
       xwayland-satellite
       (python3.withPackages (python-pkgs: with python-pkgs; [
       pandas
@@ -173,6 +178,42 @@ specialisation = {
       unrar
   ]))
 ];
+
+environment.sessionVariables = {
+    # Niri needs to be recognized as a Wayland desktop environment
+    XDG_CURRENT_DESKTOP = "niri";
+    XDG_SESSION_TYPE = "wayland";
+    XDG_SESSION_DESKTOP = "niri";
+    
+    # Optional: Force browsers to use the Wayland backend (recommended)
+    MOZ_ENABLE_WAYLAND = "1"; # For Firefox
+    NIXOS_OZONE_WL = "1";     # For Chromium-based browsers
+  };
+
+
+xdg.portal = {
+    enable = true;
+    # Ensure both are installed, but we'll prioritize GNOME for ScreenCast
+    extraPortals = with pkgs; [ 
+      xdg-desktop-portal-gtk 
+      xdg-desktop-portal-gnome 
+    ];
+
+    # This is the critical part: explicitly tell the portal system
+    # to use the GNOME portal for the ScreenCast interface on Niri.
+    config = {
+      common = {
+        # Default portals for general things like FileChooser, etc.
+        default = [ "gtk" ]; 
+      };
+      niri = {
+        # Fallback list for the niri desktop
+        default = [ "gnome" "gtk" ]; 
+        # Explicitly set the GNOME portal for ScreenCast
+        "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ]; 
+      };
+    };
+  };
 
 fonts.packages = with pkgs; [
   nerd-fonts.jetbrains-mono
